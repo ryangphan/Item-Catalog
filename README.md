@@ -62,5 +62,5 @@ Additionally, you need to have these files as well:
   ```
 
 ### Miscellaneous
--This README document is based on a template suggested by PhilipCoach in this Udacity forum [post](https://discussions.udacity.com/t/readme-files-in-project-1/23524/2)
--The code of this project is based on a repository of Udacity, which is intended to be used as supplement course material. The original code can be founded [here](https://github.com/udacity/ud330)
+- This README document is based on a template suggested by PhilipCoach in this Udacity forum [post](https://discussions.udacity.com/t/readme-files-in-project-1/23524/2)
+- The code of this project is based on a repository of Udacity, which is intended to be used as supplement course material. The original code can be founded [here](https://github.com/udacity/ud330)
