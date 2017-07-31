@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+  <div class='flash'>
+  {% with messages = get_flashed_messages() %}
+		  {% if messages %}
+		  <ul>
+				 {% for message in messages %}
+						 <li> <strong> {{ message }} </strong> </li>
+				 {% endfor %}
+		  </ul>
+		  {% endif %}
+  {% endwith %}
+
+	        <div class="title">
+	            <h1>Edit Menu Item</h1>
+	            <h1>{{catalog.name}}</h1>
+	        </div>
+
+	        <div class="col-md-4"></div>
+	        <div class="col-md-4">
+	            <form  action="#" method="post">
+	                <div class="form-group">
+	                    <label>Name:</label>
+	                    <input name="name" type="text" class="form-control" value="{{item.name}}">
+	                    <label>Description:</label>
+	                    <textarea name="description" class="form-control">{{ item.description }}</textarea>
+	                    <label>Price:</label>
+	                    <input name="price" type="text" class="form-control" value="{{item.price}}">
+	                    <label>Course:</label>
+	                    <select name="category" multiple class="form-control">
+	                        <option {% if item.category == 'Appetizer'%}selected{%endif%}>Appetizer</option>
+	                        <option {% if item.category == 'Entree'%}selected{%endif%}>Entree</option>
+	                        <option {% if item.category == 'Dessert'%}selected{%endif%}>Dessert</option>
+	                        <option {% if item.category == 'Beverage'%}selected{%endif%}>Beverage</option>
+	                    </select>
+	                </div>
+	                <button type="submit" class="btn btn-primary btn-block">Edit</button>
+	            </form>
+	            <a href="{{ url_for('showMenu',catalog_id = catalog.id)}}">
+	                <button name="cancel" class="btn btn-danger btn-block">Cancel</button>
+	            </a>
+	        </div>
+	        <div class="col-md-4"></div>
+
+	    </div>
+{% endblock %}
