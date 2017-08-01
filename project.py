@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import Flask
 from flask import render_template
 from flask import request, redirect
@@ -30,6 +31,16 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in login_session:
+            return redirect(url_for('showLogin'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 # Create anti-forgery state token
@@ -257,9 +268,9 @@ def gdisconnect():
 # -------------------------------------
 # Returns JSON of all items in catalog
 @app.route('/catalog.json')
-def catalogMenuJSON(catalog_id):
+def catalogMenuJSON():
     items = session.query(MenuItem).order_by(
-        MenuItems.id.desc())
+        MenuItem.id.desc())
     return jsonify(MenuItems=[i.serialize for i in items])
 
 
@@ -296,9 +307,8 @@ def showCatalogs():
 
 # Create a new catalog
 @app.route('/catalog/new/', methods=['GET', 'POST'])
+@login_required
 def newCatalog():
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         if request.form['name']:
             newCatalog = Catalog(
@@ -319,17 +329,16 @@ def newCatalog():
 
 # Edit a Catalog
 @app.route('/Catalog/<int:catalog_id>/edit/', methods=['GET', 'POST'])
+@login_required
 def editCatalog(catalog_id):
     editedCatalog = session.query(
         Catalog).filter_by(id=catalog_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if editedCatalog.user_id != login_session['user_id']:
         return """<script>function myFunction()
-                {alert('You are not authorized to edit
-                this catalog. Please create your own
-                catalog in order to edit.');}</script>
-                <body onload='myFunction()''>"""
+                    {alert('You are not authorized to edit
+                    this catalog. Please create your own
+                    catalog in order to edit.');}</script>
+                    <body onload='myFunction()''>"""
     if request.method == 'POST':
         if request.form['name']:
             editedCatalog.name = request.form['name']
@@ -349,11 +358,10 @@ def editCatalog(catalog_id):
 
 # Delete a catalog
 @app.route('/catalog/<int:catalog_id>/delete/', methods=['GET', 'POST'])
+@login_required
 def deleteCatalog(catalog_id):
     catalogToDelete = session.query(
         Catalog).filter_by(id=catalog_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if catalogToDelete.user_id != login_session['user_id']:
         return """<script>function myFunction()
                 {alert('You are not authorized to delete
@@ -408,9 +416,8 @@ def showMenu(catalog_id):
     '/catalog/<int:catalog_id>/menu/new/',
     methods=['GET', 'POST']
 )
+@login_required
 def newMenuItem(catalog_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     catalog = session.query(Catalog).filter_by(id=catalog_id).one()
     if login_session['user_id'] != catalog.user_id:
         return """<script>function myFunction()
@@ -434,7 +441,7 @@ def newMenuItem(catalog_id):
             flash('New Menu %s Item Successfully Created' % (newItem.name))
             return redirect(url_for('showMenu', catalog_id=catalog_id))
         else:
-            flash("Please Complete Form")
+            flash("Please Fill Out All The Form Before Submitting")
             return redirect(url_for('newMenuItem',
                                     catalog_id=catalog_id,
                                     catalog=catalog))
@@ -451,9 +458,8 @@ def newMenuItem(catalog_id):
     '/catalog/<int:catalog_id>/menu/<int:menu_id>/edit',
     methods=['GET', 'POST']
 )
+@login_required
 def editMenuItem(catalog_id, menu_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     editedItem = session.query(MenuItem).filter_by(id=menu_id).one()
     catalog = session.query(Catalog).filter_by(id=catalog_id).one()
     if login_session['user_id'] != catalog.user_id:
@@ -497,9 +503,8 @@ def editMenuItem(catalog_id, menu_id):
     '/catalog/<int:catalog_id>/menu/<int:menu_id>/delete',
     methods=['GET', 'POST']
 )
+@login_required
 def deleteMenuItem(catalog_id, menu_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     catalog = session.query(Catalog).filter_by(id=catalog_id).one()
     itemToDelete = session.query(MenuItem).filter_by(id=menu_id).one()
     if login_session['user_id'] != catalog.user_id:
